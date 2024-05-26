@@ -84,12 +84,15 @@ func loadAllowedSubnets() error {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		_, ipNet, err := net.ParseCIDR(scanner.Text())
-		if err != nil {
-			return err
+		line := scanner.Text()
+		if len(line) > 0 && line[0] != '#' {
+			_, ipNet, err := net.ParseCIDR(line)
+			if err != nil {
+				return err
+			}
+			Opts.AllowedSubnets = append(Opts.AllowedSubnets, ipNet)
+			Opts.Logger.Info("allowed subnet", slog.String("subnet", ipNet.String()))
 		}
-		Opts.AllowedSubnets = append(Opts.AllowedSubnets, ipNet)
-		Opts.Logger.Info("allowed subnet", slog.String("subnet", ipNet.String()))
 	}
 
 	return nil
